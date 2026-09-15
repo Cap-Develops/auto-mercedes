@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Расходы · Mercedes S500</title>
+<style>
+  :root{
+    --bg:#0d0f12;
+    --panel:#15181d;
+    --panel-2:#1b1f26;
+    --line:#262b33;
+    --txt:#e8eaed;
+    --muted:#8b919b;
+    --white:#ffffff;
+    --silver:#c7ccd1;
+    --sergey:#4a9eff;
+    --sergey-bg:rgba(74,158,255,.14);
+    --artur:#ff8f4a;
+    --artur-bg:rgba(255,143,74,.14);
+    --good:#3ecf8e;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(120% 80% at 50% -10%,#1a1e25 0%,var(--bg) 55%);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding:24px 16px 64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+
+  /* header */
+  .head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  .star{
+    width:42px;height:42px;flex:0 0 42px;border-radius:50%;
+    border:2px solid var(--silver);display:grid;place-items:center;
+    color:var(--silver);
+  }
+  .star svg{width:24px;height:24px}
+  .title{font-size:22px;font-weight:700;letter-spacing:.2px}
+  .subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+
+  /* debt hero */
+  .hero{
+    margin:22px 0;
+    background:linear-gradient(135deg,var(--panel) 0%,var(--panel-2) 100%);
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 24px;position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;
+    background:radial-gradient(circle,rgba(255,255,255,.05),transparent 70%);
+  }
+  .hero-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .hero-num{font-size:40px;font-weight:800;margin-top:8px;letter-spacing:-.5px}
+  .hero-num.settled{color:var(--good)}
+  .hero-sub{font-size:13px;color:var(--muted);margin-top:8px}
+  .hero-note{margin-top:14px;font-size:13px;color:#e0b15a;background:rgba(224,177,90,.1);
+    border:1px solid rgba(224,177,90,.25);padding:9px 12px;border-radius:10px;display:none}
+
+  /* tiles */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px}
+  .tile{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;
+  }
+  .tile .t-label{font-size:12px;color:var(--muted)}
+  .tile .t-num{font-size:20px;font-weight:700;margin-top:6px}
+
+  /* section */
+  .section-title{
+    font-size:14px;font-weight:600;color:var(--silver);
+    text-transform:uppercase;letter-spacing:1px;margin:28px 4px 12px;
+  }
+
+  /* table */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead th{
+    text-align:left;font-size:11px;font-weight:600;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.6px;padding:14px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  tbody td{padding:14px 16px;font-size:14px;border-bottom:1px solid var(--line)}
+  tbody tr:last-child td{border-bottom:none}
+  td.amount,th.amount{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.num,th.num{width:36px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:center}
+  .badge{
+    display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+  }
+  .badge.sergey{color:var(--sergey);background:var(--sergey-bg)}
+  .badge.artur{color:var(--artur);background:var(--artur-bg)}
+  .badge.tbd{color:var(--muted);background:rgba(139,145,155,.14)}
+  .owner-select{
+    background:var(--panel-2);color:var(--txt);border:1px solid var(--line);
+    border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238b919b' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;
+  }
+  .owner-select:focus{outline:none;border-color:var(--silver)}
+  .owner-select.sergey{color:var(--sergey)}
+  .owner-select.artur{color:var(--artur)}
+  .owner-select.tbd{color:var(--muted)}
+  .owner-select.saving{opacity:.45;pointer-events:none}
+  .confirm-btn{background:var(--good);color:#06281b;border:none;border-radius:8px;
+    padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .confirm-btn:hover{filter:brightness(1.08)}
+  .confirm-btn.saving{opacity:.5;pointer-events:none}
+  .confirmed{color:var(--good);font-size:13px;font-weight:600;white-space:nowrap}
+  .awaiting{color:var(--muted);font-size:13px;white-space:nowrap}
+  .cat{font-weight:500}
+  .date{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  tfoot td{padding:14px 16px;font-size:14px;font-weight:700;border-top:2px solid var(--line)}
+
+  .empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:14px}
+
+  .foot{margin-top:34px;text-align:center;color:var(--muted);font-size:12px}
+
+  /* mobile: tables -> cards */
+  @media (max-width:600px){
+    .tiles{grid-template-columns:1fr;}
+    .hero-num{font-size:32px}
+    table,thead,tbody,tr,td{display:block;width:100%}
+    thead{display:none}
+    tbody tr{padding:12px 16px;border-bottom:1px solid var(--line)}
+    tbody tr:last-child{border-bottom:none}
+    tbody td{padding:5px 0;border:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    tbody td::before{content:attr(data-label);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+    td.amount{text-align:right}
+    tfoot,tfoot td{display:block}
+    tfoot td{display:flex;justify-content:space-between}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="star">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 12V3M12 12l7.8 4.5M12 12L4.2 16.5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="title">Mercedes S500 · расходы</div>
+      <div class="subtitle" id="periodSub">Совместное содержание · Сергей и Артур</div>
+    </div>
+  </div>
+
+  <!-- DEBT HERO -->
+  <div class="hero">
+    <div class="hero-label" id="heroLabel">Баланс</div>
+    <div class="hero-num" id="heroNum">—</div>
+    <div class="hero-sub" id="heroSub"></div>
+    <div class="hero-note" id="heroNote"></div>
+  </div>
+
+  <!-- TILES -->
+  <div class="tiles">
+    <div class="tile">
+      <div class="t-label">Всего потрачено</div>
+      <div class="t-num" id="totalAll">0 ₽</div>
+    </div>
+    <div class="tile">
+      <div class="t-label">Заплатил Сергей</div>
+      <div class="t-num" id="paidSergey">0 ₽</div>
+    </div>
+    <div class="tile">
+      <div class="t-label">Заплатил Артур</div>
+      <div class="t-num" id="paidArtur">0 ₽</div>
+    </div>
+  </div>
+
+  <!-- EXPENSES -->
+  <div class="section-title">Расходы</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">№</th>
+          <th>Статья</th>
+          <th>Дата</th>
+          <th class="amount">Сумма</th>
+          <th>Заплатил</th>
+          <th>На ком расход</th>
+          <th>Согласование</th>
+        </tr>
+      </thead>
+      <tbody id="expBody"></tbody>
+      <tfoot id="expFoot"></tfoot>
+    </table>
+  </div>
+
+  <!-- REPAYMENTS -->
+  <div class="section-title">Погашения долга</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th class="amount">Сумма</th>
+          <th>От кого</th>
+        </tr>
+      </thead>
+      <tbody id="repBody"></tbody>
+      <tfoot id="repFoot"></tfoot>
+    </table>
+  </div>
+
+  <div class="foot">Данные из общей базы · загружено: <span id="updated">—</span></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  /* ====== Supabase ======
+     Данные живут в таблицах mercedes_expenses / mercedes_repayments
+     (проект КП, изолированы префиксом mercedes_, с КП не пересекаются).
+     Аноним-ключ публичный по дизайну; Артур может менять ТОЛЬКО колонку owner
+     — ограничено правами на уровне БД. */
+  const SB_URL  = 'https://uclzyzztoripulpcpshp.supabase.co';
+  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbHp5enp0b3JpcHVscGNwc2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODIyNzMsImV4cCI6MjA5MjM1ODI3M30.rX-WT1WdZiwRakVcUEkcg-_dnWzfU49LvgTNHYgBYQ0';
+  const sb = window.supabase.createClient(SB_URL, SB_ANON);
+
+  let expenses = [];
+  let repayments = [];
+
+  const fmt = n => new Intl.NumberFormat('ru-RU').format(Math.round(n)) + ' ₽';
+  const fmtDate = s => {
+    if(!s) return '';
+    const [y,m,d] = s.split('-');
+    return `${d}.${m}.${y.slice(2)}`;
+  };
+  const badge = p => {
+    const cls = p==='Сергей' ? 'sergey' : (p==='Артур' ? 'artur' : 'tbd');
+    return `<span class="badge ${cls}">${p}</span>`;
+  };
+
+  // ===== РЕНДЕР =====
+  function render(){
+    const expBody = document.getElementById('expBody');
+    const expFoot = document.getElementById('expFoot');
+    let totalAll=0, paidSergey=0, paidArtur=0;
+
+    const sorted = [...expenses].sort((a,b)=> (a.sort??0)-(b.sort??0) || (a.date<b.date?-1:1));
+    if(sorted.length===0){
+      expBody.innerHTML = `<tr><td colspan="7"><div class="empty">Пока расходов нет.</div></td></tr>`;
+      expFoot.innerHTML = '';
+    } else {
+      expBody.innerHTML = sorted.map((e,i)=>{
+        const amt = Number(e.amount);
+        totalAll += amt;
+        if(e.payer==='Сергей') paidSergey += amt; else paidArtur += amt;
+        const cls = e.owner==='Сергей' ? 'sergey' : (e.owner==='Артур' ? 'artur' : 'tbd');
+        const determined = (e.owner==='Сергей' || e.owner==='Артур');
+        let ownerCell, confirmCell;
+        if(e.locked === true){
+          ownerCell   = `<span class="badge ${cls}">${e.owner}</span>`;
+          confirmCell = `<span class="confirmed">🔒 Согласовано</span>`;
+        } else {
+          const opts = ['Сергей','Артур','Не определено']
+            .map(o=>`<option ${o===e.owner?'selected':''}>${o}</option>`).join('');
+          ownerCell   = `<select class="owner-select ${cls}" data-id="${e.id}">${opts}</select>`;
+          confirmCell = determined
+            ? `<button class="confirm-btn" data-id="${e.id}">Согласовать</button>`
+            : `<span class="awaiting">⏳ ждёт выбора</span>`;
+        }
+        return `<tr>
+          <td data-label="№" class="num">${i+1}</td>
+          <td data-label="Статья" class="cat">${e.category}</td>
+          <td data-label="Дата" class="date">${fmtDate(e.date)}</td>
+          <td data-label="Сумма" class="amount">${fmt(amt)}</td>
+          <td data-label="Заплатил">${badge(e.payer)}</td>
+          <td data-label="На ком расход">${ownerCell}</td>
+          <td data-label="Согласование">${confirmCell}</td>
+        </tr>`;
+      }).join('');
+      expFoot.innerHTML = `<tr><td class="num"></td><td>Итого</td><td></td><td class="amount">${fmt(totalAll)}</td><td></td><td></td><td></td></tr>`;
+    }
+
+    // погашения
+    const repBody = document.getElementById('repBody');
+    const repFoot = document.getElementById('repFoot');
+    let repArturToSergey=0, repSergeyToArtur=0;
+    const repSorted = [...repayments].sort((a,b)=> (a.date<b.date?-1:1));
+    if(repSorted.length===0){
+      repBody.innerHTML = `<tr><td colspan="3"><div class="empty">Погашений пока не было.</div></td></tr>`;
+      repFoot.innerHTML = '';
+    } else {
+      repBody.innerHTML = repSorted.map(r=>{
+        const amt = Number(r.amount);
+        if(r.from_person==='Артур') repArturToSergey += amt; else repSergeyToArtur += amt;
+        return `<tr>
+          <td data-label="Дата" class="date">${fmtDate(r.date)}</td>
+          <td data-label="Сумма" class="amount">${fmt(amt)}</td>
+          <td data-label="От кого">${badge(r.from_person)} → ${badge(r.to_person)}</td>
+        </tr>`;
+      }).join('');
+      repFoot.innerHTML = `<tr><td>Итого погашено</td><td class="amount">${fmt(repArturToSergey+repSergeyToArtur)}</td><td></td></tr>`;
+    }
+
+    // долг — только в сторону Сергея (машина Артура)
+    let arturOwes=0, undetermined=0, undeterminedCount=0;
+    expenses.forEach(e=>{
+      const amt = Number(e.amount);
+      if(e.payer==='Сергей' && e.owner==='Артур') arturOwes += amt;
+      if(e.owner!=='Сергей' && e.owner!=='Артур'){ undetermined += amt; undeterminedCount++; }
+    });
+    const net = arturOwes - repArturToSergey;
+
+    const heroNum = document.getElementById('heroNum');
+    heroNum.classList.remove('settled');
+    if(net >= 1){
+      document.getElementById('heroLabel').textContent = 'Артур должен Сергею';
+      heroNum.textContent = fmt(net);
+      document.getElementById('heroSub').textContent = 'Расходы на Артуре, оплаченные Сергеем, за вычетом погашений.';
+    } else {
+      document.getElementById('heroLabel').textContent = 'Баланс';
+      heroNum.textContent = 'Долгов нет';
+      heroNum.classList.add('settled');
+      document.getElementById('heroSub').textContent = 'Расходов на Артуре, оплаченных Сергеем, пока нет.';
+    }
+
+    const heroNote = document.getElementById('heroNote');
+    if(undetermined > 0){
+      heroNote.style.display = 'block';
+      heroNote.innerHTML = `Не распределено: <b>${fmt(undetermined)}</b> в ${undeterminedCount} расходах — нужно решить, на ком. В долг пока не входят.`;
+    } else {
+      heroNote.style.display = 'none';
+    }
+
+    document.getElementById('totalAll').textContent   = fmt(totalAll);
+    document.getElementById('paidSergey').textContent = fmt(paidSergey);
+    document.getElementById('paidArtur').textContent  = fmt(paidArtur);
+  }
+
+  // ===== ЗАГРУЗКА ИЗ БАЗЫ =====
+  async function load(){
+    const [ex, rp] = await Promise.all([
+      sb.from('mercedes_expenses').select('*').order('sort').order('date'),
+      sb.from('mercedes_repayments').select('*').order('date')
+    ]);
+    if(ex.error){
+      document.getElementById('expBody').innerHTML =
+        `<tr><td colspan="6"><div class="empty">Ошибка загрузки данных: ${ex.error.message}</div></td></tr>`;
+      return;
+    }
+    expenses   = ex.data || [];
+    repayments = rp.error ? [] : (rp.data || []);
+    render();
+    document.getElementById('updated').textContent = new Date().toLocaleString('ru-RU');
+  }
+
+  // Артур (или Сергей) меняет «на ком расход» — пишем в базу, пересчитываем долг
+  document.getElementById('expBody').addEventListener('change', async (ev)=>{
+    const sel = ev.target.closest('.owner-select');
+    if(!sel) return;
+    const id = Number(sel.dataset.id);
+    const newOwner = sel.value;
+    sel.classList.add('saving');
+    const { error } = await sb.from('mercedes_expenses').update({ owner:newOwner }).eq('id', id);
+    sel.classList.remove('saving');
+    if(error){ alert('Не удалось сохранить выбор: ' + error.message); load(); return; }
+    const row = expenses.find(x=> Number(x.id)===id);
+    if(row) row.owner = newOwner;
+    render();
+  });
+
+  // Согласование: ставит замок через защищённую функцию (нужен код Сергея)
+  let sessionPin = null;
+  document.getElementById('expBody').addEventListener('click', async (ev)=>{
+    const btn = ev.target.closest('.confirm-btn');
+    if(!btn) return;
+    const id = Number(btn.dataset.id);
+    const row = expenses.find(x=> Number(x.id)===id);
+    if(!row) return;
+    if(!confirm(`Согласовать расход «${row.category}» как «${row.owner}»?\nПосле согласования изменить будет нельзя.`)) return;
+    if(!sessionPin){
+      sessionPin = prompt('Введите код согласования:');
+      if(!sessionPin) return;
+    }
+    btn.classList.add('saving');
+    const { error } = await sb.rpc('confirm_owner', { p_id:id, p_pin:sessionPin });
+    btn.classList.remove('saving');
+    if(error){
+      sessionPin = null;
+      alert('Не удалось согласовать. Возможно, неверный код.');
+      return;
+    }
+    row.locked = true;
+    render();
+  });
+
+  load();
+</script>
+</body>
+</html>
